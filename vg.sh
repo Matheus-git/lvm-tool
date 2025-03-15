@@ -17,7 +17,7 @@ vg_menu() {
             1) list_vgs ;;
             2) create_vg ;;
             3) show_vg ;;
-            # 4) remove_pv ;;
+            # 4) remove_vg ;;
             4) echo "Going back..."; break ;;
             *) echo "Invalid option. Please try again." ;;
         esac
@@ -43,7 +43,7 @@ create_vg() {
 }
 
 show_vg(){
-    read -p "Enter the device name: " vg_name
+    read -p "Enter the VG name: " vg_name
     echo
     sudo vgdisplay | grep -A 19 -w "VG Name.*$vg_name"
 }
