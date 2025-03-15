@@ -28,15 +28,14 @@ LVM Manager is a Bash-based tool designed to simplify the management of Logical 
    ```bash
    chmod +x sysinfo.sh
    ```
-2.  **Run the script**:
-    ```bash
-    ./lvm-manager.sh
-    ```
-    
+2. **Run the script**:
+   ```bash
+   sudo bash ./lvm-manager.sh
+   ```
 3. **Follow the menu prompts**:
-    - The script will display a menu with options to view specific system information or display all details.
-    - Enter the corresponding number for the information you want to view.
-  
+   - The script will display a menu with options to view specific system information or display all details.
+   - Enter the corresponding number for the information you want to view.
+
 ## Improvements
 
 - **Add "Remove Option" to Each Manager**: Introduce a "Remove" option within every manager for streamlined functionality.

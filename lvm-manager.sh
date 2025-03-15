@@ -9,7 +9,7 @@
 # Version: 1.0.0
 # Date: 2025-03-05
 # License: MIT
-# Repository: https://github.com/Matheus-git/lvm-tool
+# Repository: https://github.com/Matheus-git/lvm-manager
 # ========================================================
 
 source vg.sh
