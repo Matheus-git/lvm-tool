@@ -1,6 +1,6 @@
 lv_menu() {
     while true; do
-        echo
+        clear
         echo "===================================="
         echo " LV Manager "
         echo "===================================="
@@ -9,7 +9,6 @@ lv_menu() {
         echo "3. LV Details"
         echo "4. Extend LV"
         echo "5. Reduce LV"
-        # echo "4. Remove LV"
         echo "6. Go Back"
         echo "===================================="
 
@@ -19,7 +18,6 @@ lv_menu() {
             1) list_lvs ;;
             2) create_lv ;;
             3) show_lv ;;
-            # 4) remove_lv ;;
             4) extend_lv ;;
             5) reduce_lv ;;
             6) echo "Going back..."; break ;;
@@ -44,6 +42,7 @@ create_lv() {
     read -p "Enter the LV name: " lv_name
     read -p "Enter the LV size (e.g., 10G): " lv_size
     echo
+    echo -e "\e[1msudo lvcreate -n $lv_name -L $lv_size $vg_name\e[0m"
     sudo lvcreate -n "$lv_name" -L "$lv_size" "$vg_name"
 }
 
@@ -53,9 +52,31 @@ extend_lv() {
     read -p "Enter the new LV size (e.g., 10G): " lv_size
     lv_path=$(sudo lvdisplay | grep -B 1 "LV Name.*$lv_name" | grep "LV Path" | awk '{print $NF}');
     echo
+
+    if ! sudo lvdisplay "$lv_path" &>/dev/null; then
+        echo "Error: LV $lv_path does not exist."
+        return
+    fi
+
+    mount_point=$(findmnt -n -o TARGET --source "$lv_path")
+    if [ -n "$mount_point" ]; then
+        echo "Unmounting filesystem at $mount_point..."
+        sudo umount "$mount_point"
+    fi
+
+    echo -e "\n\e[1msudo lvextend -L $lv_size $lv_path \e[0m"
     sudo lvextend -L "$lv_size" "$lv_path"
+
+    echo -e "\n\e[1msudo e2fsck -f $lv_path \e[0m"
     sudo e2fsck -f "$lv_path"
+
+    echo -e "\n\e[1msudo resize2fs $lv_path $lv_size \e[0m"
     sudo resize2fs "$lv_path"
+
+    if [ -n "$mount_point" ]; then
+        echo -e "\nRemounting filesystem at $mount_point..."
+        sudo mount "$lv_path" "$mount_point"
+    fi
 }
 
 reduce_lv() {
@@ -65,18 +86,35 @@ reduce_lv() {
     lv_path=$(sudo lvdisplay | grep -B 1 "LV Name.*$lv_name" | grep "LV Path" | awk '{print $NF}');
     echo
 
-    mount_point=$(findmnt -n -o TARGET --source "$lv_path")
-    if [ -n "$mount_point" ]; then
-        echo "Erro: dispositivo $lv_path está montado em $mount_point"
+    if ! sudo lvdisplay "$lv_path" &>/dev/null; then
+        echo "Error: LV $lv_path does not exist."
         return
     fi
-    sudo e2fsck -f "$lv_path"
+
+    mount_point=$(findmnt -n -o TARGET --source "$lv_path")
+    if [ -n "$mount_point" ]; then
+        echo "Unmounting filesystem at $mount_point..."
+        sudo umount "$mount_point"
+    fi
+
+    echo -e "\n\e[1msudo resize2fs $lv_path $lv_size \e[0m"
     sudo resize2fs "$lv_path" "$lv_size"
+
+    echo -e "\n\e[1msudo e2fsck -f $lv_path \e[0m"
+    sudo e2fsck -f "$lv_path"
+
+    echo -e "\n\e[1msudo lvreduce -L $lv_size $lv_path \e[0m"
     sudo lvreduce -L "$lv_size" "$lv_path"
+
+    if [ -n "$mount_point" ]; then
+        echo -e "\nRemounting filesystem at $mount_point..."
+        sudo mount "$lv_path" "$mount_point"
+    fi
 }
 
 show_lv(){
     read -p "Enter the LV name: " lv_name
     echo
+    echo -e "\e[1msudo lvdisplay | grep -A 13 -B 1 -w 'LV Name.*$lv_name'\e[0m"
     sudo lvdisplay | grep -A 13 -B 1 -w "LV Name.*$lv_name"
 }

@@ -1,13 +1,12 @@
 pv_menu() {
     while true; do
-        echo
+        clear
         echo "===================================="
         echo " PV Manager "
         echo "===================================="
         echo "1. List PVs"
         echo "2. Create PV"
         echo "3. PV Details"
-        # echo "4. Remove PV"
         echo "4. Go Back"
         echo "===================================="
 
@@ -17,7 +16,6 @@ pv_menu() {
             1) list_pvs ;;
             2) create_pv ;;
             3) show_pv ;;
-            # 4) remove_pv ;;
             4) echo "Going back..."; break ;;
             *) echo "Invalid option. Please try again." ;;
         esac
@@ -38,11 +36,13 @@ list_pvs() {
 create_pv() {
     read -p "Enter the device to create the PV (e.g., /dev/sdb1): " device
     echo
+    echo -e "\e[1msudo pvcreate $device\e[0m"
     sudo pvcreate "$device"
 }
 
 show_pv(){
     read -p "Enter the PV name (e.g., /dev/sdb1): " pv_name
     echo
+    echo -e "\e[1msudo pvdisplay | grep -A 7 -w 'PV Name.*$pv_name'\e[0m"
     sudo pvdisplay | grep -A 7 -w "PV Name.*$pv_name"
 }

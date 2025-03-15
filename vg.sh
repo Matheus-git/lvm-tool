@@ -1,13 +1,13 @@
 vg_menu() {
     while true; do
-        echo
+        clear
         echo "===================================="
         echo " VG Manager "
         echo "===================================="
         echo "1. List VGs"
         echo "2. Create VG"
         echo "3. VG Details"
-        echo "4. Listar PVs usados"
+        echo "4. List used PVs"
         echo "5. Go Back"
         echo "===================================="
 
@@ -39,17 +39,20 @@ create_vg() {
     read -p "Enter the VG name: " vg_name
     read -p "Enter the device to add to the VG (e.g., /dev/sdb1): " device
     echo
+    echo -e "\e[1msudo vgcreate $vg_name $device\e[0m"
     sudo vgcreate "$vg_name" "$device"
 }
 
 show_vg(){
     read -p "Enter the VG name: " vg_name
     echo
+    echo -e "\e[1msudo vgdisplay | grep -A 19 -w 'VG Name.*$vg_name'\e[0m"
     sudo vgdisplay | grep -A 19 -w "VG Name.*$vg_name"
 }
 
 list_pv_by_vg(){
     read -p "Enter the VG name: " vg_name
     echo
+    echo -e "\e[1msudo pvdisplay | grep -B 1 'VG Name.*vg-virt' | grep 'PV Name' | awk '{print $NF}'\e[0m"
     sudo pvdisplay | grep -B 1 "VG Name.*vg-virt" | grep "PV Name" | awk '{print $NF}'
 }
