@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ========================================================
-# Script: LVM Tools
+# Script: LVM Manager
 # Description: Bash tool to manage Logical Volume Manager (LVM).
 #              Allows creating, listing, resizing, and removing physical volumes (PVs),
 #              volume groups (VGs), and logical volumes (LVs).
