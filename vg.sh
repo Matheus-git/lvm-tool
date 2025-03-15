@@ -7,8 +7,8 @@ vg_menu() {
         echo "1. List VGs"
         echo "2. Create VG"
         echo "3. VG Details"
-        # echo "4. Remove VG"
-        echo "4. Go Back"
+        echo "4. Listar PVs usados"
+        echo "5. Go Back"
         echo "===================================="
 
         read -p "Choose an option: " choice
@@ -17,8 +17,8 @@ vg_menu() {
             1) list_vgs ;;
             2) create_vg ;;
             3) show_vg ;;
-            # 4) remove_vg ;;
-            4) echo "Going back..."; break ;;
+            4) list_pv_by_vg ;;
+            5) echo "Going back..."; break ;;
             *) echo "Invalid option. Please try again." ;;
         esac
 
@@ -46,4 +46,10 @@ show_vg(){
     read -p "Enter the VG name: " vg_name
     echo
     sudo vgdisplay | grep -A 19 -w "VG Name.*$vg_name"
+}
+
+list_pv_by_vg(){
+    read -p "Enter the VG name: " vg_name
+    echo
+    sudo pvdisplay | grep -B 1 "VG Name.*vg-virt" | grep "PV Name" | awk '{print $NF}'
 }

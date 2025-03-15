@@ -7,8 +7,10 @@ lv_menu() {
         echo "1. List LVs"
         echo "2. Create LV"
         echo "3. LV Details"
+        echo "4. Extend LV"
+        echo "5. Reduce LV"
         # echo "4. Remove LV"
-        echo "4. Go Back"
+        echo "6. Go Back"
         echo "===================================="
 
         read -p "Choose an option: " choice
@@ -18,7 +20,9 @@ lv_menu() {
             2) create_lv ;;
             3) show_lv ;;
             # 4) remove_lv ;;
-            4) echo "Going back..."; break ;;
+            4) extend_lv ;;
+            5) reduce_lv ;;
+            6) echo "Going back..."; break ;;
             *) echo "Invalid option. Please try again." ;;
         esac
 
@@ -41,6 +45,34 @@ create_lv() {
     read -p "Enter the LV size (e.g., 10G): " lv_size
     echo
     sudo lvcreate -n "$lv_name" -L "$lv_size" "$vg_name"
+}
+
+extend_lv() {
+    read -p "Enter the VG name: " vg_name
+    read -p "Enter the LV name: " lv_name
+    read -p "Enter the new LV size (e.g., 10G): " lv_size
+    lv_path=$(sudo lvdisplay | grep -B 1 "LV Name.*$lv_name" | grep "LV Path" | awk '{print $NF}');
+    echo
+    sudo lvextend -L "$lv_size" "$lv_path"
+    sudo e2fsck -f "$lv_path"
+    sudo resize2fs "$lv_path"
+}
+
+reduce_lv() {
+    read -p "Enter the VG name: " vg_name
+    read -p "Enter the LV name: " lv_name
+    read -p "Enter the new LV size (e.g., 10G): " lv_size
+    lv_path=$(sudo lvdisplay | grep -B 1 "LV Name.*$lv_name" | grep "LV Path" | awk '{print $NF}');
+    echo
+
+    mount_point=$(findmnt -n -o TARGET --source "$lv_path")
+    if [ -n "$mount_point" ]; then
+        echo "Erro: dispositivo $lv_path está montado em $mount_point"
+        return
+    fi
+    sudo e2fsck -f "$lv_path"
+    sudo resize2fs "$lv_path" "$lv_size"
+    sudo lvreduce -L "$lv_size" "$lv_path"
 }
 
 show_lv(){

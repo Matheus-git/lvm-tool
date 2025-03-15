@@ -23,7 +23,7 @@ show_menu() {
     echo "===================================="
     echo " Gerenciador de LVM - Menu Principal "
     echo "===================================="
-    echo "1. Volumes Físicos (PVs)"
+    echo "1. Grupo de Volumes (VGs)"
     echo "2. Volumes lógicos (LVs)"
     echo "3. Volumes Físicos (PVs)"
     echo "4. Sair"
